@@ -172,8 +172,9 @@
   \begin{itemize}
     \item Find a collision-free hash function.
     \item $\{k_0, k_1, k_2\} \subseteq K$.
-    \item Pick some $h \in H$ from a universal hash family.
-    \item<2-> Pick perfect hash functions $h_0, h_1, h_2 \in H$.
+    \item Pick some $h \in H$ where $H$ is a universal hash family.
+    \item<2-> Pick perfect hash functions $h_0, h_1, h_2$ from universal
+    hash families.
   \end{itemize}
   \hfill  
   \end{column}
@@ -191,7 +192,7 @@
       \begin{array}{|c|M{1cm}{0.4cm}|M{1cm}{0.4cm}|M{1cm}{0.4cm}|}
         \hline
         \text{Bin Size} & 2 & 1 & 0 \\ \hline
-        \text{Squared Bin Size} & 4 & 1 & 0 \\ \hline
+        \text{Subhash Map Size} & $2^2$ & $1^2$ & $0^2$ \\ \hline
         \text{Offset ($o_i$)} & 0 & 4 & 5 \\ \hline
         \text{Hash Function} & $h_0$ & $h_1$ & $h_2$ \\ \hline
       \end{array}
@@ -210,16 +211,27 @@
     }
 \end{frame}
 
+\begin{frame}\frametitle{Finding collision-free hash functions}
+  \begin{itemize}
+    \item Pick hash functions $h_i$ for every bin.
+    \item Compute $o_i + h_i(k)$ for every $k$.
+    \item Compute a histogram to count the number of collisions.
+    \item Using a segmented scan, check if any subhash map has a collision.
+    \item Partition subhash maps by if they had collision.
+    \item Continue on subhash maps with collisions.
+  \end{itemize}
+\end{frame}
+
+
 \begin{frame}\frametitle{Comparison}
   \begin{table}
     \begin{tabular}{|l|l|l|}
       \hline
       & FKS & Open Addressing \\ \hline
-      Hashing & Universal Hash Family & Any\footnote{May ruin the time complexity.} \\ \hline
+      Hashing & Universal Hash Family & Any\footnote{Technically not true.} \\ \hline
       Lookup & $O(1)$ & Expected $O(1)$ \\ \hline
       Construction & Expected $O(n)$ & $O(n)$ \\ \hline
       Dynamic & Yes\footnote{Seems impractical.} & Yes \\ \hline
-      Duplicate Keys & No & Yes \\ \hline
     \end{tabular}
   \end{table}
 \end{frame}
@@ -255,6 +267,19 @@
       All times in milliseconds.
     \end{center}
   }
+\end{frame}
+
+\begin{frame}\frametitle{The End}
+  \begin{center}
+    \textbf{Towards Efficient Hash Maps in Functional Array Languages}\\
+    \vspace{0.5cm}
+    \url{https://arxiv.org/abs/2508.11443}
+
+    \vspace{1cm}
+    \textbf{Code} \\
+    \vspace{0.5cm}
+    \url{https://github.com/diku-dk/containers}
+  \end{center}
 \end{frame}
 
 \end{document}
