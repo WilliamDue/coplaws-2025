@@ -52,6 +52,8 @@
 \newcommand{\Int}{\mathbf{int}}
 \newcommand{\Bool}{\mathbf{bool}}
 \newcommand{\Def}{\kw{def}}
+\newcommand{\While}{\kw{while}}
+\newcommand{\Do}{\kw{do}}
 \newcommand{\Rep}{\kw{rep}}
 \newcommand{\Zip}{\kw{zip}}
 
@@ -165,6 +167,7 @@
   \begin{itemize}
     \item Avoid collisions.
     \item Bulk operations.
+    \item<2-> Fredman-Komlós-Szemerédi (FKS) construction. 
   \end{itemize}
   \hfill  
   \end{column}
@@ -280,7 +283,36 @@
   \end{center}
 \end{frame}
 
-\begin{frame}\frametitle{Finding collision-free hash functions}
+\begin{frame}\frametitle{Mapping FKS to GPU}
+  \begin{columns}
+  \begin{column}{.48\textwidth}
+  \hfill
+  \begin{itemize}
+    \item Irregular parallism.
+    \item<2-> Map flattening:
+    \begin{align*}
+      & \: \Map \: (\Map \: f) \: [[1, 2], [3, 4, 5]] \onslide<3->{ \\
+      \equiv & \: [\Map \: f \: [1, 2], \Map \: f\: [3, 4, 5]]} \onslide<4->{ \\
+      \equiv & \: [[f \: 1, f \: 2], [f \: 3, f\: 4, f\: 5]]}
+    \end{align*}  
+    \item<5-> Flattening the finding of collision-free hash functions.
+  \end{itemize}
+  \hfill  
+  \end{column}
+  \hfill
+  \begin{column}{.5\textwidth}
+  \begin{align*}
+    \onslide<5->{& \Map \: \lambda subkeys \to \\
+    & \quad \While \: h \text{ leads to collisions} \: \Do \\
+    & \quad \quad \text{Pick a random hash function } h} \onslide<6->{ \\
+    & \\
+    & \qquad \qquad \qquad \mapsto \\
+    & \\
+    & \While \: \text{any collision in subarrays} \: \Do \\
+    & \quad \quad \Map \: \lambda keys \to \text{ pick new hash functions}}
+  \end{align*}
+  \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}\frametitle{Benchmarks}
