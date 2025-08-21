@@ -175,7 +175,7 @@
   \begin{column}{.6\textwidth}
     \begin{align*}
       \Map & : (\alpha \to \beta) \to [n]\alpha \to [n]\beta \\
-      \mathtt{from\_array} & : [n](\alpha, \beta) \to \mathbf{map} ~ \alpha ~ \beta
+      \mathtt{from\_array} & : [n](\alpha, \beta) \to \mathbf{hashmap} ~ \alpha ~ \beta
     \end{align*} 
   \end{column}
   \end{columns}
@@ -283,35 +283,121 @@
   \end{center}
 \end{frame}
 
-\begin{frame}\frametitle{Mapping FKS to GPU}
+\begin{frame}\frametitle{Flattening the finding of collision-free hash functions.}
+  \begin{center}
+    \resizebox{.8\columnwidth}{!}{
+      \begin{tikzpicture}
+        % Vertical positions
+        \def\yTop{2.0}
+        \def\yMid{0.0}
+        \def\yarrays{-1.0}
+
+        % Horizontal positions for arrays
+        \def\xA{0}          % First 4-cell array (left)
+        \def\xB{6}          % Single cell array (middle)
+        \def\xC{7.8}        % Second 4-cell array (right)
+
+        % Wider cells for hash buckets
+        \def\cellW{1.7}
+        \def\cellH{1.2}
+
+        % Center everything properly
+        \def\totalWidth{12}  % Total diagram width
+        \def\topArrayWidth{6} % 5 cells * 1.2 = 6
+        \def\midArrayWidth{8.5} % 5 cells * 1.7 = 8.5
+        \def\xTop{3}      % Center top array: (12-6)/2 = 3
+        \def\xMid{1.75}   % Center middle array: (12-8.5)/2 = 1.75
+        
+        \foreach \i in {0,...,4} {
+          \draw (\xTop+\i*1.2,\yTop) rectangle (\xTop+\i*1.2+1.2,\yTop+1);
+          \node at (\xTop+\i*1.2+0.6,\yTop+0.5) {$k_{\i}$};
+        }
+        % Middle array: 5 bigger cells for "bins", only some filled with sets
+        \foreach \i in {0,...,4} {
+          \draw[thick, densely dashed] (\xMid+\i*\cellW,\yMid) rectangle (\xMid+\i*\cellW+\cellW,\yMid+\cellH);
+        }
+        \node[font=\footnotesize] at (\xTop-0.5,\yTop+0.5) {Keys}
+        % Only fill h_1, h_2, h_4
+        \node[text=red] at (\xMid+1*\cellW+0.5*\cellW,\yMid+0.6) {$k_{0},\,k_{3}$};
+        \node[text=blue] at (\xMid+2*\cellW+0.5*\cellW,\yMid+0.6) {$k_{1}$};
+        \node[text=green!70!black] at (\xMid+4*\cellW+0.5*\cellW,\yMid+0.6) {$k_{2},\,k_{4}$};
+
+        % Bottom arrays (unchanged)
+        % First array of 4 simple boxes (left)
+        \foreach \j in {0,...,3} {
+          \draw (\xA+\j*1.2,\yarrays) rectangle (\xA+\j*1.2+1.2,\yarrays-1);
+        }
+        \node[text=red] at (\xA+0.6,\yarrays-0.5) {$k_3$}; % first cell
+        \node[text=red] at (\xA+3.0,\yarrays-0.5) {$k_0$}; % fourth cell
+        
+        % Single box array (middle)
+        \draw (\xB,\yarrays) rectangle (\xB+1.2,\yarrays-1);
+        \node[text=blue] at (\xB+0.6,\yarrays-0.5) {$k_1$}; % middle box
+        
+        % Second array of 4 simple boxes (right)
+        \foreach \j in {0,...,3} {
+          \draw (\xC+\j*1.2,\yarrays) rectangle (\xC+\j*1.2+1.2,\yarrays-1);
+        }
+        \node[text=green!70!black] at (\xC+1.8,\yarrays-0.5) {$k_4$}; % second cell
+        \node[text=green!70!black] at (\xC+3.0,\yarrays-0.5) {$k_2$}; % fourth cell
+      
+        \node[font=\footnotesize] at (\xMid-0.8,\yMid+0.6) {Collisions};
+        % Arrows from topmost k_i to bins - First show all keys going to h
+        % All keys point to a central h point - center it between top and middle
+        \pgfmathsetmacro{\hPointX}{\xTop+2.5*1.2}
+        \pgfmathsetmacro{\hPointY}{\yTop-0.4}
+        
+        % Lines from each key to the central h point
+        \draw[->, thick] (\xTop+0.6,\yTop) -- (\hPointX,\hPointY);
+        \draw[->, thick] (\xTop+3*1.2+0.6,\yTop) -- (\hPointX,\hPointY);
+        \draw[->, thick] (\xTop+1*1.2+0.6,\yTop) -- (\hPointX,\hPointY);
+        \draw[->, thick] (\xTop+2*1.2+0.6,\yTop) -- (\hPointX,\hPointY);
+        \draw[->, thick] (\xTop+4*1.2+0.6,\yTop) -- (\hPointX,\hPointY);
+        
+        % Arrows from h to each bin
+        \draw[->, thick, red] (\hPointX,\hPointY) -- (\xMid+1*\cellW+0.5*\cellW,\yMid+\cellH);
+        \draw[->, thick, blue] (\hPointX,\hPointY) -- (\xMid+2*\cellW+0.5*\cellW,\yMid+\cellH);
+        \draw[->, thick, green!70!black] (\hPointX,\hPointY) -- (\xMid+4*\cellW+0.5*\cellW,\yMid+\cellH);
+        
+        % Label the hash function h at the central point
+        \node[font=\footnotesize, circle, draw, fill=palepurple] at (\hPointX,\hPointY) {};
+
+        % Arrows: h_1, h_2, h_4 to bottom arrays (h_1 arrow RED, h_2 arrow BLUE, h_4 arrow GREEN)
+        \draw[->, thick, red] (\xMid+1*\cellW+0.5*\cellW,\yMid) -- (\xA+2.4,\yarrays); % h1 to center of left 4-cell array
+        
+        \draw[->, thick, blue] (\xMid+2*\cellW+0.5*\cellW,\yMid) -- (\xB+0.6,\yarrays); % h2 to center of 1-cell array
+        \draw[->, thick, green!70!black] (\xMid+4*\cellW+0.5*\cellW,\yMid) -- (\xC+2.4,\yarrays); % h4 to center of right 4-cell array
+
+        \node[font=\footnotesize] at (\xA-0.8,\yarrays-0.5) {Subarrays};
+      \end{tikzpicture}
+    }
+  \end{center}
   \begin{columns}
-  \begin{column}{.48\textwidth}
+  \begin{column}{.43\textwidth}
   \hfill
-  \begin{itemize}
-    \item Irregular parallism.
-    \item<2-> Map flattening:
-    \begin{align*}
-      & \: \Map \: (\Map \: f) \: [[1, 2], [3, 4, 5]] \onslide<3->{ \\
-      \equiv & \: [\Map \: f \: [1, 2], \Map \: f\: [3, 4, 5]]} \onslide<4->{ \\
-      \equiv & \: [[f \: 1, f \: 2], [f \: 3, f\: 4, f\: 5]] \\
-      \equiv & \: \kw{unflatten} \: [f \: 1, f \: 2, f \: 3, f\: 4, f\: 5]}
-    \end{align*}  
-    \item<5-> Flattening the finding of collision-free hash functions.
-  \end{itemize}
+  \begin{align*}
+    \onslide<1->{& \Map \: \lambda subarrays \to \\
+    & \quad \While \: h_i \text{ leads to collisions} \: \Do \\
+    & \quad \quad \text{Pick a random hash function } h_i}
+  \end{align*}
   \hfill  
   \end{column}
   \hfill
-  \begin{column}{.5\textwidth}
+  \begin{column}{.1\textwidth}
+  \hfill
   \begin{align*}
-    \onslide<5->{& \Map \: \lambda subkeys \to \\
-    & \quad \While \: h \text{ leads to collisions} \: \Do \\
-    & \quad \quad \text{Pick a random hash function } h} \onslide<6->{ \\
-    & \\
-    & \qquad \qquad \qquad \mapsto \\
-    & \\
+     \onslide<2->{\mapsto}
+  \end{align*}
+  \hfill
+  \end{column}
+  \begin{column}{.43\textwidth}
+  \hfill
+  \begin{align*}
+    \onslide<2->{
     & \While \: \text{any collisions in subarrays} \: \Do \\
     & \quad \Map \: \lambda keys \to \text{pick new hash functions}}
   \end{align*}
+  \hfill  
   \end{column}
   \end{columns}
 \end{frame}
@@ -320,15 +406,15 @@
   \begin{center}
     \begin{tabular}{l|rrr}
       & \multicolumn{3}{c}{\textbf{64-bit integer keys} ($n=10^{7}$)} \\
-      & \textit{Construction} & \textit{Lookup} & \textit{Membership} \\\midrule
-      Futhark (hash maps) & 18.3 & 3.3 & 1.6 \\
-      Futhark (binary search) & 40.9 & 6.2 & 5.8 \\
-      Futhark (Eytzinger) & 42.3 & 4.3 & 2.4 \\
-      cuCollections & $2.7$ & $1.1$ & $0.9$ \\
+      & \textit{Construction} & \textit{Lookup} \\\midrule
+      Futhark (hash maps) & 18.3 & 3.3  \\
+      Futhark (binary search) & 40.9 & 6.2 \\
+      Futhark (Eytzinger) & 42.3 & 4.3 \\
+      cuCollections & $2.7$ & $1.1$ \\
     \end{tabular}
     \vspace{0.5cm}
     
-    All times in milliseconds.
+    All times in milliseconds measured on an A100 GPU.
   \end{center}
 \end{frame}
 
