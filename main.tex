@@ -135,7 +135,7 @@
   \hfill
   \begin{itemize}
     \item Concurrency.
-    \item Collision resolution.
+    \item<2-> Difficult.
   \end{itemize}
   \hfill  
   \end{column}
@@ -156,6 +156,15 @@
       & $k_1$ & $k_0$ & \\ \hline
     \end{array}
     $$
+    \vspace{1cm}
+    \onslide<2->{
+      $$
+        \begin{array}{|M{1cm}{0.4cm}|M{1cm}{0.4cm}|M{1cm}{0.4cm}|M{1cm}{0.4cm}|}
+        \hline
+        & \color{red}{$k_1$} & \color{red}{$k_1$} & \\ \hline
+        \end{array}
+      $$
+    }
   \end{column}
   \end{columns}
 \end{frame}
@@ -376,7 +385,7 @@
   \begin{column}{.43\textwidth}
   \hfill
   \begin{align*}
-    \onslide<1->{& \Map \: \lambda subarrays \to \\
+    \onslide<1->{& \Map \: \lambda subarray \to \\
     & \quad \While \: h_i \text{ leads to collisions} \: \Do \\
     & \quad \quad \text{Pick a random hash function } h_i}
   \end{align*}
